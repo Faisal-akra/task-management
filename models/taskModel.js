@@ -1,15 +1,14 @@
 const mongoose = require("mongoose");
 
-
 const taskSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true
+    required: true,
   },
 
   description: {
     type: String,
-    required: true
+    required: true,
   },
 
   dueDate: {
@@ -18,13 +17,24 @@ const taskSchema = new mongoose.Schema({
   },
 
   status: {
-    type: Boolean,
-    default: false,
-  }
+    type: String,
+    sValues: ["Completed", "Pending", "To-Do"],
+    default: "Completed",
+  },
 
-})
+  priority: {
+    type: String,
+    values: ["High", "Medium", "Low"],
+    default: "Medium",
+  },
+
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users",
+    required: true
+  }
+});
 
 const taskModel = mongoose.model("tasks", taskSchema);
-
 
 module.exports = taskModel;
