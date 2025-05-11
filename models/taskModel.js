@@ -12,6 +12,16 @@ const taskSchema = new mongoose.Schema({
     required: true
   },
 
+  dueDate: {
+    type: Date,
+    required: false,
+  },
+
+  status: {
+    type: Boolean,
+    default: false,
+  }
+
 })
 
 const taskModel = mongoose.model("tasks", taskSchema);
