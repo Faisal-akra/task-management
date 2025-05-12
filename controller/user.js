@@ -48,11 +48,11 @@ const login = async(req, res) => {
 
     if(!existEmail) {
      return res.status(404).json({
-        msg: "user is not found"
+        msg: "user is not founded"
       })
     }
 
-    const comparePass = bcrypt.compare(password, existEmail.password);
+    const comparePass = await bcrypt.compare(password, existEmail.password);
 
     if(!comparePass) {
     return  res.status(404).json({
@@ -60,7 +60,7 @@ const login = async(req, res) => {
       })
     }
 
-    const token = jwt.sign({existEmail}, process.env.SECRET_KEY, {expiresIn: "1hr"});
+    const token = jwt.sign({id: existEmail._id}, process.env.SECRET_KEY, {expiresIn: "1hr"});
     
     res.status(200).json({
       msg: "user is loged in successfully",
