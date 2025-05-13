@@ -4,6 +4,11 @@ const createTask = async (req, res) => {
   try {
     const { title, description, dueDate, status, priority } = req.body;
 
+    if (!title || !description || !dueDate || !status || !priority) {
+      return res.status(404).json({
+        msg: "All fileds are required"
+      })
+    }
     const task = await taskModel.create({
       title,
       description,
