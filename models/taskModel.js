@@ -20,12 +20,14 @@ const taskSchema = new mongoose.Schema({
     type: String,
     sValues: ["Completed", "Pending", "To-Do"],
     default: "Completed",
+    required: true
   },
 
   priority: {
     type: String,
     values: ["High", "Medium", "Low"],
     default: "Medium",
+    required: true
   },
 
   user: {

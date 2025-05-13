@@ -4,6 +4,21 @@ const createTask = async (req, res) => {
 	try {
 		const { title, description, dueDate, status, priority } = req.body;
 
+ update-user-controller
+    if (!title || !description || !dueDate || !status || !priority) {
+      return res.status(404).json({
+        msg: "All fileds are required"
+      })
+    }
+    const task = await taskModel.create({
+      title,
+      description,
+      dueDate,
+      status,
+      priority,
+      user: req.user._id,
+    });
+
 		const task = await taskModel.create({
 			title,
 			description,
@@ -12,6 +27,7 @@ const createTask = async (req, res) => {
 			priority,
 			user: req.user._id,
 		});
+ master
 
 		res.status(200).json({
 			msg: "task is created successfuly",
