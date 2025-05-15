@@ -6,6 +6,7 @@ const {
 	fetchSpecificTask,
 	fetchTaskByPriority,
 	fetchTaskByStatus,
+	deleteSpecificTask,
 } = require("../controller/task");
 
 const taskRoutes = express.Router();
@@ -13,6 +14,8 @@ const taskRoutes = express.Router();
 taskRoutes.post("/createTask", middleWare, createTask);
 taskRoutes.get("/fetchAllTasks", middleWare, fetchAllTaskUser);
 taskRoutes.get("/fetchSpecificTasks/:id", middleWare, fetchSpecificTask);
+taskRoutes.delete("/deleteSpecificTasks/:id", middleWare, deleteSpecificTask);
+
 taskRoutes.get(
 	"/fetchSpecificTasksByStatus/:status",
 	middleWare,
