@@ -129,6 +129,32 @@ const fetchTaskByPriority = async (req, res) => {
     });
   }
 };
+const updateSpecificTask = async (req, res) => {
+  try {
+    
+    const {id} = req.params;
+		const update = req.body;
+
+        if (!update.status) update.status = "Completed";
+    if (!update.priority) update.priority = "Medium";
+		const updateTask = await taskModel.findByIdAndUpdate(id,  update, {new: true});
+
+		if(!updateTask){
+			return res.status(404).json({
+				msg: "This user tasks is empty"
+			})
+		}
+
+
+
+    res.status(200).json({
+			msg: "upadte task successfully🎊",
+      task: updateTask
+		})
+  } catch (error) {
+  console.log(error,"error")  
+  }
+}
 
 module.exports = {
   createTask,
@@ -136,4 +162,6 @@ module.exports = {
   fetchSpecificTask,
   fetchTaskByStatus,
   fetchTaskByPriority,
+  updateSpecificTask,
+
 };

@@ -6,6 +6,7 @@ const {
 	fetchSpecificTask,
 	fetchTaskByPriority,
 	fetchTaskByStatus,
+	updateSpecificTask,
 } = require("../controller/task");
 
 const taskRoutes = express.Router();
@@ -23,5 +24,5 @@ taskRoutes.get(
 	middleWare,
 	fetchTaskByPriority
 );
-
+taskRoutes.post("/updateSpecificTask/:id",middleWare,updateSpecificTask)
 module.exports = taskRoutes;
