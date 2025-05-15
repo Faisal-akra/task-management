@@ -4,13 +4,12 @@ const createTask = async (req, res) => {
   try {
     const { title, description, dueDate, status, priority } = req.body;
 
-    if (!title || !description || !dueDate ) {
+    if (!title || !description || !dueDate) {
       return res.status(404).json({
         msg: "All fileds are required",
       });
     }
 
-  
     const task = await taskModel.create({
       title,
       description,
@@ -74,6 +73,29 @@ const fetchSpecificTask = async (req, res) => {
   }
 };
 
+const deleteSpecificTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const userId = req.user._id;
+
+    if (!userId) {
+      return res.status(404).json({
+        msg: "user not found",
+      });
+    }
+    const task = await taskModel.findById(id);
+    const deleteTask = await taskModel.findOneAndDelete(id, task);
+
+    res.status(200).json({
+      msg: "task deleted successfully",
+      deletedTask: task
+    })
+  } catch (error) {
+    console.log(error, "error");
+  }
+};
+
 const fetchTaskByStatus = async (req, res) => {
   try {
     const { status } = req.params;
@@ -113,10 +135,10 @@ const fetchTaskByPriority = async (req, res) => {
       });
     }
 
-    if(tasks.length === 0) {
+    if (tasks.length === 0) {
       return res.status(404).json({
-        msg: 'this priority of your task is not match'
-      })
+        msg: "this priority of your task is not match",
+      });
     }
     res.status(200).json({
       msg: "tasks fetch successfully",
@@ -160,6 +182,7 @@ module.exports = {
   createTask,
   fetchAllTaskUser,
   fetchSpecificTask,
+  deleteSpecificTask,
   fetchTaskByStatus,
   fetchTaskByPriority,
   updateSpecificTask,
