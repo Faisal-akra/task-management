@@ -16,7 +16,7 @@ const register = async (req, res) => {
 
     if (isExist) {
       return res.json({
-        msg: `user is already exist in this email ${email}`,
+        msg: `user is already exist in this email ${email} redirect Login-Page`,
       });
     }
 
@@ -29,7 +29,7 @@ const register = async (req, res) => {
     });
 
     res.status(200).json({
-      msg: "user register successfully",
+      msg: "user register successfully redirect Login-Page",
     });
   } catch (error) {
     console.log(error, "error");
