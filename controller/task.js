@@ -45,7 +45,7 @@ const fetchAllTaskUser = async (req, res) => {
 
     res.status(200).json({
       msg: "tasks fetch successfully",
-      tasks: [tasks],
+      tasks: tasks,
     });
   } catch (error) {
     console.log(error, "error");
