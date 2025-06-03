@@ -70,8 +70,8 @@ const login = async (req, res) => {
   } catch (error) {
     console.log(error, "error");
     res.status(404).json({
-      msg: "invalid cridentials"
-    })
+      msg: "invalid cridentials",
+    });
   }
 };
 
@@ -108,7 +108,9 @@ const editProfile = async (req, res) => {
       });
     }
 
-    const updateProfile = await userModel.findByIdAndUpdate(id, update, {   new: true, });
+    const updateProfile = await userModel.findByIdAndUpdate(id, update, {
+      new: true,
+    });
 
     res.status(200).json({
       msg: "update profile successfully🎊",
