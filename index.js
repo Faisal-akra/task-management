@@ -7,25 +7,42 @@ const app = express();
 const port = 7000;
 const cors = require("cors");
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
+
+const corsOptions = {
+  origin: [
+    'https://task-management-frontend-jade.vercel.app',
+    'https://task-management-frontend-jade.vercel.app/' // Both variants
+  ],
+  credentials: true,
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept'
+  ]
+}
+
+
+
+app.use((err, req, res, next) => {
+  if (err.name === 'CorsError') {
+    console.log('CORS Error:', err.message);
+    return res.status(403).json({ error: 'CORS Error' });
+  }
   next();
 });
-app.use(
-  cors({
-    origin: "https://task-management-frontend-jade.vercel.app", 
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+
+app.use(cors(corsOptions));
+
+
+
 dotenv.config();
 
 
+
+app.options('*', cors()) 
 
 mongooseDB();
 app.use(express.json());
