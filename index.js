@@ -7,6 +7,14 @@ const app = express();
 const port = 7000;
 const cors = require("cors");
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  next();
+});
 app.use(
   cors({
     origin: "https://task-management-frontend-jade.vercel.app", 
@@ -16,6 +24,8 @@ app.use(
   })
 );
 dotenv.config();
+
+
 
 mongooseDB();
 app.use(express.json());
