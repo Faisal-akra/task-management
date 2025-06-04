@@ -1,5 +1,5 @@
 // const userModel = require("../models/userModel");
-// const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 // const register = async (req, res) => {
@@ -44,7 +44,7 @@ const jwt = require("jsonwebtoken");
 
 
 
-const bcrypt = require("bcryptjs");
+
 const userModel = require("../models/userModel"); // adjust as needed
 const mongooseDB = require("../config/connectDB");   // adjust as needed
 
