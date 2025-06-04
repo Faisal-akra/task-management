@@ -50,31 +50,60 @@ const mongooseDB = require("../config/connectDB");   // adjust as needed
 
 const register = async (req, res) => {
   try {
-    await mongooseDB(); // Must ensure DB connects in each serverless call
+    // Initialize DB connection
+    await mongooseDB();
 
     const { name, email, password } = req.body;
 
+    // Input validation
     if (!name || !email || !password) {
       return res.status(400).json({ msg: "All fields are required" });
     }
 
-    const isExist = await userModel.findOne({ email });
+    // Check existing user with timeout
+    const isExist = await Promise.race([
+      userModel.findOne({ email }).select("email").lean().exec(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("DB query timeout")), 3000)
+      )
+    ]);
+
     if (isExist) {
       return res.status(409).json({
         msg: `User already exists with email ${email}. Please log in.`,
       });
     }
 
-    const hashPassword = await bcrypt.hash(password, 10);
-    await userModel.create({ name, email, password: hashPassword });
+    // Password hashing with timeout
+    const hashPassword = await Promise.race([
+      bcrypt.hash(password, 10),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Hashing timeout")), 2000)
+      )
+    ]);
 
-    res.status(201).json({ msg: "User registered successfully. Please log in." });
+    // User creation with timeout
+    await Promise.race([
+      userModel.create({ name, email, password: hashPassword }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("User creation timeout")), 3000)
+      )
+    ]);
+
+    return res.status(201).json({ 
+      msg: "User registered successfully. Please log in." 
+    });
+
   } catch (error) {
-    console.error("Register Error:", error);
-    res.status(500).json({ msg: "Server error" });
+    console.error("Register Error:", error.message);
+    const status = error.message.includes("timeout") ? 504 : 500;
+    return res.status(status).json({ 
+      msg: error.message.includes("timeout") 
+        ? "Request timeout" 
+        : "Server error" 
+    });
   }
 };
-
 
 
 const login = async (req, res) => {
