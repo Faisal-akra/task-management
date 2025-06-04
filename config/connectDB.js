@@ -13,20 +13,36 @@
 
 const mongoose = require("mongoose");
 
-let isConnected = false;
+// Cache connection globally
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
 const mongooseDB = async () => {
-  if (isConnected) return;
+  if (cached.conn) return cached.conn;
 
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    });
-    isConnected = true;
-    console.log("MongoDB connected successfully");
+      serverSelectionTimeoutMS: 5000, // 5-second timeout
+      socketTimeoutMS: 30000, // 30-second socket timeout
+      maxPoolSize: 10, // Limit connections
+    }).then(mongoose => mongoose);
+  }
+
+  try {
+    cached.conn = await Promise.race([
+      cached.promise,
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('DB connection timeout')), 5000)
+      )
+    ]);
+    return cached.conn;
   } catch (error) {
-    console.error("MongoDB connection error:", error);
+    cached.promise = null; // Clear on error to allow retry
     throw error;
   }
 };
