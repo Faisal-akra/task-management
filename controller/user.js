@@ -1,43 +1,81 @@
-const userModel = require("../models/userModel");
-const bcrypt = require("bcrypt");
+// const userModel = require("../models/userModel");
+// const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
+// const register = async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+
+//     if (!name || !email || !password) {
+//       return res.status(404).json({
+//         msg: "all fileds is required",
+//       });
+//     }
+
+//     const isExist = await userModel.findOne({ email });
+
+//     if (isExist) {
+//       return res.json({
+//         msg: `user is already exist in this email ${email} redirect Login-Page`,
+//       });
+//     }
+
+//     const hashPassword = await bcrypt.hash(password, 10);
+
+//     await userModel.create({
+//       name,
+//       email,
+//       password: hashPassword,
+//     });
+
+//     res.status(200).json({
+//       msg: "user register successfully redirect Login-Page",
+//     });
+//   } catch (error) {
+//     console.log(error, "error");
+//     res.status(404).json({
+//       msg: "error ",
+//     });
+//   }
+// };
+
+
+
+
+
+
+const bcrypt = require("bcryptjs");
+const userModel = require("../models/userModel"); // adjust as needed
+const mongooseDB = require("../config/connectDB");   // adjust as needed
 
 const register = async (req, res) => {
   try {
+    await mongooseDB(); // Must ensure DB connects in each serverless call
+
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(404).json({
-        msg: "all fileds is required",
-      });
+      return res.status(400).json({ msg: "All fields are required" });
     }
 
     const isExist = await userModel.findOne({ email });
-
     if (isExist) {
-      return res.json({
-        msg: `user is already exist in this email ${email} redirect Login-Page`,
+      return res.status(409).json({
+        msg: `User already exists with email ${email}. Please log in.`,
       });
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
+    await userModel.create({ name, email, password: hashPassword });
 
-    await userModel.create({
-      name,
-      email,
-      password: hashPassword,
-    });
-
-    res.status(200).json({
-      msg: "user register successfully redirect Login-Page",
-    });
+    res.status(201).json({ msg: "User registered successfully. Please log in." });
   } catch (error) {
-    console.log(error, "error");
-    res.status(404).json({
-      msg: "error ",
-    });
+    console.error("Register Error:", error);
+    res.status(500).json({ msg: "Server error" });
   }
 };
+
+
 
 const login = async (req, res) => {
   try {
