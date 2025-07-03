@@ -1,110 +1,43 @@
-// const userModel = require("../models/userModel");
+const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// const register = async (req, res) => {
-//   try {
-//     const { name, email, password } = req.body;
-
-//     if (!name || !email || !password) {
-//       return res.status(404).json({
-//         msg: "all fileds is required",
-//       });
-//     }
-
-//     const isExist = await userModel.findOne({ email });
-
-//     if (isExist) {
-//       return res.json({
-//         msg: `user is already exist in this email ${email} redirect Login-Page`,
-//       });
-//     }
-
-//     const hashPassword = await bcrypt.hash(password, 10);
-
-//     await userModel.create({
-//       name,
-//       email,
-//       password: hashPassword,
-//     });
-
-//     res.status(200).json({
-//       msg: "user register successfully redirect Login-Page",
-//     });
-//   } catch (error) {
-//     console.log(error, "error");
-//     res.status(404).json({
-//       msg: "error ",
-//     });
-//   }
-// };
-
-
-
-
-
-
-
-const userModel = require("../models/userModel"); // adjust as needed
-const mongooseDB = require("../config/connectDB");   // adjust as needed
-
 const register = async (req, res) => {
   try {
-    // Initialize DB connection
-    await mongooseDB();
-
     const { name, email, password } = req.body;
 
-    // Input validation
     if (!name || !email || !password) {
-      return res.status(400).json({ msg: "All fields are required" });
-    }
-
-    // Check existing user with timeout
-    const isExist = await Promise.race([
-      userModel.findOne({ email }).select("email").lean().exec(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("DB query timeout")), 3000)
-      )
-    ]);
-
-    if (isExist) {
-      return res.status(409).json({
-        msg: `User already exists with email ${email}. Please log in.`,
+      return res.status(404).json({
+        msg: "all fileds is required",
       });
     }
 
-    // Password hashing with timeout
-    const hashPassword = await Promise.race([
-      bcrypt.hash(password, 10),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Hashing timeout")), 2000)
-      )
-    ]);
+    const isExist = await userModel.findOne({ email });
 
-    // User creation with timeout
-    await Promise.race([
-      userModel.create({ name, email, password: hashPassword }),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("User creation timeout")), 3000)
-      )
-    ]);
+    if (isExist) {
+      return res.json({
+        msg: `user is already exist in this email ${email} redirect Login-Page`,
+      });
+    }
 
-    return res.status(201).json({ 
-      msg: "User registered successfully. Please log in." 
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    await userModel.create({
+      name,
+      email,
+      password: hashPassword,
     });
 
+    res.status(200).json({
+      msg: "user register successfully redirect Login-Page",
+    });
   } catch (error) {
-    console.error("Register Error:", error.message);
-    const status = error.message.includes("timeout") ? 504 : 500;
-    return res.status(status).json({ 
-      msg: error.message.includes("timeout") 
-        ? "Request timeout" 
-        : "Server error" 
+    console.log(error, "error");
+    res.status(404).json({
+      msg: "error ",
     });
   }
 };
-
 
 const login = async (req, res) => {
   try {
